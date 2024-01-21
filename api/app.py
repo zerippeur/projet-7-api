@@ -20,11 +20,16 @@ def predict_credit_risk(client_infos: dict):
     prediction_array, confidence_array = model.predict(client_infos), model.predict_proba(client_infos)
     prediction_value = int(prediction_array[0])
     confidence_value = float(confidence_array[0][prediction_value])
-    credit_risk = 'Risky' if prediction_value == 1 else 'Safe'
+    if confidence_value > 0.8:
+        risk_category = "SAFE" if prediction_value == 0 else "NOPE"
+    elif confidence_value > 0.6:
+        risk_category = "UNCERTAIN" if prediction_value == 0 else "VERY RISKY"
+    else:
+        risk_category = "RISKY"
     return {
         'prediction': prediction_value,
         'confidence': confidence_value,
-        'credit_approval': credit_risk
+        'risk_category': risk_category
     }
 
 # 4. Run the API with uvicorn (uvicorn app:app --reload)
