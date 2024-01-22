@@ -7,6 +7,7 @@ from xgboost import XGBClassifier
 from pydantic import BaseModel
 import mlflow.sklearn
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
 
 # 2. Create app and model objects
 app = FastAPI()
@@ -31,6 +32,24 @@ def predict_credit_risk(client_infos: dict):
         'confidence': confidence_value,
         'risk_category': risk_category
     }
+
+@app.post('/global_feature_importance')
+def get_global_feature_importance():
+    if isinstance(model, XGBClassifier):
+        feature_importance_dict = {
+            'model_type': 'XGBClassifier',
+            'feature_importance': {
+                'weight': model.get_booster().get_score(importance_type='weight'),
+                'cover': model.get_booster().get_score(importance_type='cover'),
+                'gain': model.get_booster().get_score(importance_type='gain')
+            }
+        }
+    elif isinstance(model, RandomForestClassifier):
+        feature_importance_dict = {
+            'model_type': 'RandomForestClassifier',
+            'feature_importance': model.feature_importances_
+        }
+    return feature_importance_dict
 
 # 4. Run the API with uvicorn (uvicorn app:app --reload)
 # first app stands for the pyhton file, second app for the API instance, --reload for automatic refresh
