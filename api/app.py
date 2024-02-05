@@ -86,13 +86,6 @@ async def get_shap_feature_importance(shap_feature_importance_dict: dict):
 
     return shap_values_dict
 
-@app.post('/feature_names_in')
-def get_feature_names_in():
-    feature_names = {
-        'columns': model.feature_names_in_
-    }
-    return feature_names
-
 # 4. Run the API with uvicorn (uvicorn app:app --reload)
 # first app stands for the pyhton file, second app for the API instance, --reload for automatic refresh
 #    Will run on http://127.0.0.1:8000
