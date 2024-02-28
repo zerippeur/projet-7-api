@@ -4,6 +4,7 @@ from fastapi import FastAPI
 import pickle
 import pandas as pd
 from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
 import mlflow.sklearn
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -11,8 +12,13 @@ import shap
 
 # 2. Create app and model objects
 app = FastAPI()
-
-model_path ='C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/f160483f83af458da90360f354519e24/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run'
+path_dict ={
+    'XGBClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/196890409778388257/6a3d38cae16544508201e24736d75c2d/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__tuning_run',
+    'RandomForestClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/389240121052556420/7e0f9806291140a38ed9c19c0bb6ad42/artifacts/RandomForestClassifier_model__bayes_search__randomundersampler_balancing__tuning_run ',
+    'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/b33cded96f214961920e19edb524ccfb/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run',
+    'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/f160483f83af458da90360f354519e24/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run'
+}
+model_path = path_dict['debug']
 model = mlflow.sklearn.load_model(model_path)
 
 api_data_for_shap_initiation = None
@@ -36,7 +42,7 @@ def predict_credit_risk(client_infos: dict):
         'risk_category': risk_category
     }
 
-@app.post('/global_feature_importance')
+@app.get('/global_feature_importance')
 async def get_global_feature_importance():
     if isinstance(model, XGBClassifier):
         feature_importance_dict = {
@@ -50,7 +56,16 @@ async def get_global_feature_importance():
     elif isinstance(model, RandomForestClassifier):
         feature_importance_dict = {
             'model_type': 'RandomForestClassifier',
-            'feature_importance': model.feature_importances_
+            'feature_importance': {
+                'gini': dict(zip(model.feature_names_in_, model.feature_importances_))
+            }
+        }
+    elif isinstance(model, LGBMClassifier):
+        feature_importance_dict = {
+            'model_type': 'LGBMClassifier',
+            'feature_importance': {
+                'gain': dict(zip(model.feature_name_, model.feature_importances_))
+            }
         }
     return feature_importance_dict
 
@@ -65,20 +80,20 @@ async def initiate_shap_explainer(data_for_shap_initiation: dict):
 @app.post('/shap_feature_importance')
 async def get_shap_feature_importance(shap_feature_importance_dict: dict):
     feature_scale = shap_feature_importance_dict['feature_scale']
-    if feature_scale == 'Global':
-        data2 = api_data_for_shap_initiation.to_dict(orient='index')
+    if feature_scale == 'Global':# and explainer in globals():
+        # data2 = api_data_for_shap_initiation.to_dict(orient='index')
         shap_values = explainer.shap_values(api_data_for_shap_initiation).tolist()
         expected_value = None
-    elif feature_scale == 'Local':
+    elif feature_scale == 'Local':# and explainer in globals():
         client_infos = pd.DataFrame.from_dict(shap_feature_importance_dict['client_infos'], orient='index').T
-        data2 = client_infos.to_dict(orient='index')
+        # data2 = client_infos.to_dict(orient='index')
         shap_values = explainer.shap_values(client_infos).tolist()
         expected_value = explainer.expected_value.item()
 
     feature_names = model.feature_names_in_.tolist()
 
     shap_values_dict = {
-        'data': data2,
+        # 'data': data2,
         'shap_values': shap_values,
         'feature_names': feature_names,
         'expected_value': expected_value
