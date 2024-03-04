@@ -18,7 +18,7 @@ path_dict ={
     'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/b33cded96f214961920e19edb524ccfb/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run',
     'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/f160483f83af458da90360f354519e24/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run'
 }
-model_path = path_dict['debug']
+model_path = path_dict['LGBMClassifier']
 model = mlflow.sklearn.load_model(model_path)
 
 api_data_for_shap_initiation = None
@@ -64,7 +64,7 @@ async def get_global_feature_importance():
         feature_importance_dict = {
             'model_type': 'LGBMClassifier',
             'feature_importance': {
-                'gain': dict(zip(model.feature_name_, model.feature_importances_))
+                'gain': dict(zip(model.feature_name_, model.feature_importances_.tolist())),
             }
         }
     return feature_importance_dict
@@ -73,24 +73,29 @@ async def get_global_feature_importance():
 async def initiate_shap_explainer(data_for_shap_initiation: dict):
     global api_data_for_shap_initiation
     global explainer
+    global feature_names
     if api_data_for_shap_initiation is None:
         api_data_for_shap_initiation = pd.DataFrame.from_dict(data_for_shap_initiation, orient='index')
-        explainer = shap.Explainer(model)
+        explainer = shap.TreeExplainer(model)
+        if isinstance(model, XGBClassifier):
+            feature_names = model.feature_names_in_.tolist()
+        elif isinstance(model, RandomForestClassifier):
+            feature_names = model.feature_names_in_.tolist()
+        elif isinstance(model, LGBMClassifier):
+            feature_names = model.feature_name_
 
 @app.post('/shap_feature_importance')
 async def get_shap_feature_importance(shap_feature_importance_dict: dict):
     feature_scale = shap_feature_importance_dict['feature_scale']
     if feature_scale == 'Global':# and explainer in globals():
         # data2 = api_data_for_shap_initiation.to_dict(orient='index')
-        shap_values = explainer.shap_values(api_data_for_shap_initiation).tolist()
+        shap_values = explainer.shap_values(api_data_for_shap_initiation).tolist() if isinstance(model, XGBClassifier) else explainer.shap_values(api_data_for_shap_initiation)[1].tolist()
         expected_value = None
     elif feature_scale == 'Local':# and explainer in globals():
         client_infos = pd.DataFrame.from_dict(shap_feature_importance_dict['client_infos'], orient='index').T
         # data2 = client_infos.to_dict(orient='index')
-        shap_values = explainer.shap_values(client_infos).tolist()
-        expected_value = explainer.expected_value.item()
-
-    feature_names = model.feature_names_in_.tolist()
+        shap_values = explainer.shap_values(client_infos).tolist() if isinstance(model, XGBClassifier) else explainer.shap_values(client_infos)[1].tolist()
+        expected_value = explainer.expected_value.item() if isinstance(model, XGBClassifier) else explainer.expected_value[1].item()
 
     shap_values_dict = {
         # 'data': data2,
