@@ -9,37 +9,65 @@ import mlflow.sklearn
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 import shap
+import os
+from dotenv import load_dotenv
 
 # 2. Create app and model objects
 app = FastAPI()
+
+load_dotenv('api.env')
+
+MLFLOW_TRACKING_USERNAME = os.getenv('MLFLOW_TRACKING_USERNAME')
+MLFLOW_TRACKING_PASSWORD = os.getenv('MLFLOW_TRACKING_PASSWORD')
+MLFLOW_TRACKING_URI = os.getenv('MLFLOW_TRACKING_URI')
+MLFLOW_MODEL_URI = os.getenv('MLFLOW_MODEL_URI')
+MLFLOW_RUN_ID = os.getenv('MLFLOW_RUN_ID')
+
 model_path_dict = {
     'XGBClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/196890409778388257/411079214e254096a033a07452c930b4/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__tuning_run',
     'RandomForestClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/389240121052556420/45d26b172a2d4bb79fc64664c19a0910/artifacts/RandomForestClassifier_model__bayes_search__randomundersampler_balancing__tuning_run ',
     'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/ffe6693bbf44476384c6c2db9c6552b7/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run',
-    'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run'
+    'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run',
+    'remote': 'https://dagshub.com/zerippeur/mlflow-tracking.mlflow'
 }
 
 explainer_path_dict = {
     'XGBClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/196890409778388257/411079214e254096a033a07452c930b4/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_XGBClassifier_version_28.pkl',
     'RandomForestClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/389240121052556420/45d26b172a2d4bb79fc64664c19a0910/artifacts/RandomForestClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_RandomForestClassifier_version_11.pkl',
     'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/ffe6693bbf44476384c6c2db9c6552b7/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_LGBMClassifier_version_5.pkl',
-    'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run/shap_explainer_XGBClassifier_version_26.pkl'
+    'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run/shap_explainer_XGBClassifier_version_26.pkl',
+    'remote': 'mlflow-artifacts:/d3d1389dffda411ca86634d28691bcf8/5753931acb854dde9eb3dc2f3fe78182/artifacts/shap_explainer_LGBMClassifier_version_5.pkl'
 }
 
-shap_values_dict = {
+shap_values_path_dict = {
     'XGBClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/196890409778388257/411079214e254096a033a07452c930b4/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_values_XGBClassifier_version_28.pkl',
     'RandomForestClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/389240121052556420/45d26b172a2d4bb79fc64664c19a0910/artifacts/RandomForestClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_values_RandomForestClassifier_version_11.pkl',
     'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/ffe6693bbf44476384c6c2db9c6552b7/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_values_LGBMClassifier_version_5.pkl',
-    'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run/shap_values_XGBClassifier_version_26.pkl'
+    'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run/shap_values_XGBClassifier_version_26.pkl',
+    'remote': 'mlflow-artifacts:/d3d1389dffda411ca86634d28691bcf8/5753931acb854dde9eb3dc2f3fe78182/artifacts/shap_values_LGBMClassifier_version_5.pkl'
 }
 
-mode = 'debug'
+mode = 'remote'
 
-model_path = model_path_dict[mode]
-model = mlflow.sklearn.load_model(model_path)
+if mode == 'remote':
+    os.environ['MLFLOW_TRACKING_USERNAME'] = MLFLOW_TRACKING_USERNAME
+    os.environ['MLFLOW_TRACKING_PASSWORD'] = MLFLOW_TRACKING_PASSWORD
+    mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
+    model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI)
+else:
+    model_path = model_path_dict[mode]
+    model = mlflow.sklearn.load_model(model_path)
 
 api_data_for_shap_initiation = None
 explainer = None
+
+@app.get('/model_threshold')
+async def get_model_threshold():
+    threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
+    threshold_dict = {
+        'threshold': threshold
+    }
+    return threshold_dict
 
 @app.get('/global_feature_importance')
 async def get_global_feature_importance():
@@ -87,18 +115,22 @@ def predict_credit_risk(prediction_dict: dict):
     }
 
 @app.post('/initiate_shap_explainer')
-async def initiate_shap_explainer(): #data_for_shap_initiation: dict:
+async def initiate_shap_explainer():
     global api_data_for_shap_initiation
     global explainer
     global feature_names
     global shap_values_global
     if api_data_for_shap_initiation is None:
-        with open(explainer_path_dict[mode], 'rb') as f:
-            explainer = pickle.load(f)
-        with open(shap_values_dict[mode], 'rb') as f:
-            shap_values_global = pickle.load(f)
-        # api_data_for_shap_initiation = pd.DataFrame.from_dict(data_for_shap_initiation, orient='index')
-        # explainer = shap.TreeExplainer(model)
+        if mode == 'remote':
+            with open(mlflow.artifacts.download_artifacts(explainer_path_dict[mode]), 'rb') as f:
+                explainer = pickle.load(f)
+            with open(mlflow.artifacts.download_artifacts(shap_values_path_dict[mode]), 'rb') as f:
+                shap_values_global = pickle.load(f)
+        else:
+            with open(explainer_path_dict[mode], 'rb') as f:
+                explainer = pickle.load(f)  
+            with open(shap_values_path_dict[mode], 'rb') as f:
+                shap_values_global = pickle.load(f)
         if isinstance(model, XGBClassifier):
             feature_names = model.feature_names_in_.tolist()
         elif isinstance(model, RandomForestClassifier):
@@ -109,11 +141,10 @@ async def initiate_shap_explainer(): #data_for_shap_initiation: dict:
 @app.post('/shap_feature_importance')
 def get_shap_feature_importance(shap_feature_importance_dict: dict):
     feature_scale = shap_feature_importance_dict['feature_scale']
-    if feature_scale == 'Global':# and explainer in globals():
+    if feature_scale == 'Global':
         shap_values = shap_values_global.tolist() if isinstance(model, XGBClassifier) else shap_values_global[1].tolist()
-        # shap_values = explainer.shap_values(api_data_for_shap_initiation).tolist() if isinstance(model, XGBClassifier) else explainer.shap_values(api_data_for_shap_initiation)[1].tolist()
         expected_value = None
-    elif feature_scale == 'Local':# and explainer in globals():
+    elif feature_scale == 'Local':
         client_infos = pd.DataFrame.from_dict(shap_feature_importance_dict['client_infos'], orient='index').T
         shap_values = explainer.shap_values(client_infos).tolist() if isinstance(model, XGBClassifier) else explainer.shap_values(client_infos)[1].tolist()
         expected_value = explainer.expected_value.item() if isinstance(model, XGBClassifier) else explainer.expected_value[1].item()
