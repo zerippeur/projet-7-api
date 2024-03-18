@@ -24,27 +24,27 @@ MLFLOW_MODEL_URI = os.getenv('MLFLOW_MODEL_URI')
 MLFLOW_RUN_ID = os.getenv('MLFLOW_RUN_ID')
 
 model_path_dict = {
-    'XGBClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/196890409778388257/411079214e254096a033a07452c930b4/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__tuning_run',
-    'RandomForestClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/389240121052556420/45d26b172a2d4bb79fc64664c19a0910/artifacts/RandomForestClassifier_model__bayes_search__randomundersampler_balancing__tuning_run ',
-    'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/ffe6693bbf44476384c6c2db9c6552b7/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run',
-    'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run',
+    # 'XGBClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/196890409778388257/411079214e254096a033a07452c930b4/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__tuning_run',
+    # 'RandomForestClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/389240121052556420/45d26b172a2d4bb79fc64664c19a0910/artifacts/RandomForestClassifier_model__bayes_search__randomundersampler_balancing__tuning_run ',
+    # 'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/ffe6693bbf44476384c6c2db9c6552b7/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run',
+    # 'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run',
     'remote': 'https://dagshub.com/zerippeur/mlflow-tracking.mlflow'
 }
 
 explainer_path_dict = {
-    'XGBClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/196890409778388257/411079214e254096a033a07452c930b4/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_XGBClassifier_version_28.pkl',
-    'RandomForestClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/389240121052556420/45d26b172a2d4bb79fc64664c19a0910/artifacts/RandomForestClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_RandomForestClassifier_version_11.pkl',
-    'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/ffe6693bbf44476384c6c2db9c6552b7/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_LGBMClassifier_version_5.pkl',
-    'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run/shap_explainer_XGBClassifier_version_26.pkl',
-    'remote': 'mlflow-artifacts:/d3d1389dffda411ca86634d28691bcf8/5753931acb854dde9eb3dc2f3fe78182/artifacts/shap_explainer_LGBMClassifier_version_5.pkl'
+    # 'XGBClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/196890409778388257/411079214e254096a033a07452c930b4/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_XGBClassifier_version_28.pkl',
+    # 'RandomForestClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/389240121052556420/45d26b172a2d4bb79fc64664c19a0910/artifacts/RandomForestClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_RandomForestClassifier_version_11.pkl',
+    # 'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/ffe6693bbf44476384c6c2db9c6552b7/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_LGBMClassifier_version_5.pkl',
+    # 'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run/shap_explainer_XGBClassifier_version_26.pkl',
+    'remote': 'mlflow-artifacts:/86617b78fa1941f9a1c21aa470029781/8482edf6873043f0901149c7752531ec/artifacts/shap_explainer_LGBMClassifier_version_5.pkl'
 }
 
 shap_values_path_dict = {
-    'XGBClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/196890409778388257/411079214e254096a033a07452c930b4/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_values_XGBClassifier_version_28.pkl',
-    'RandomForestClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/389240121052556420/45d26b172a2d4bb79fc64664c19a0910/artifacts/RandomForestClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_values_RandomForestClassifier_version_11.pkl',
-    'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/ffe6693bbf44476384c6c2db9c6552b7/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_values_LGBMClassifier_version_5.pkl',
-    'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run/shap_values_XGBClassifier_version_26.pkl',
-    'remote': 'mlflow-artifacts:/d3d1389dffda411ca86634d28691bcf8/5753931acb854dde9eb3dc2f3fe78182/artifacts/shap_values_LGBMClassifier_version_5.pkl'
+    # 'XGBClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/196890409778388257/411079214e254096a033a07452c930b4/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_values_XGBClassifier_version_28.pkl',
+    # 'RandomForestClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/389240121052556420/45d26b172a2d4bb79fc64664c19a0910/artifacts/RandomForestClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_values_RandomForestClassifier_version_11.pkl',
+    # 'LGBMClassifier': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/218309939986015518/ffe6693bbf44476384c6c2db9c6552b7/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_values_LGBMClassifier_version_5.pkl',
+    # 'debug': 'C:/Users/emile/DEV/WORKSPACE/projet-7-cours-oc/model/model/mlartifacts/675174994878903245/11ae21cdc87645cfb96491b38d5f1b49/artifacts/XGBClassifier_model__bayes_search__randomundersampler_balancing__debug_run/shap_values_XGBClassifier_version_26.pkl',
+    'remote': 'mlflow-artifacts:/86617b78fa1941f9a1c21aa470029781/8482edf6873043f0901149c7752531ec/artifacts/shap_values_LGBMClassifier_version_5.pkl'
 }
 
 mode = 'remote'
@@ -115,7 +115,7 @@ def predict_credit_risk(prediction_dict: dict):
     }
 
 @app.post('/initiate_shap_explainer')
-async def initiate_shap_explainer():
+async def initiate_shap_explainer(data_for_shap_initiation: dict):
     global api_data_for_shap_initiation
     global explainer
     global feature_names
@@ -124,8 +124,10 @@ async def initiate_shap_explainer():
         if mode == 'remote':
             with open(mlflow.artifacts.download_artifacts(explainer_path_dict[mode]), 'rb') as f:
                 explainer = pickle.load(f)
-            with open(mlflow.artifacts.download_artifacts(shap_values_path_dict[mode]), 'rb') as f:
-                shap_values_global = pickle.load(f)
+            # with open(mlflow.artifacts.download_artifacts(shap_values_path_dict[mode]), 'rb') as f:
+                # shap_values_global = pickle.load(f)
+            data = pd.DataFrame.from_dict(data_for_shap_initiation, orient='index')
+            shap_values_global = explainer.shap_values(data)
         else:
             with open(explainer_path_dict[mode], 'rb') as f:
                 explainer = pickle.load(f)  
@@ -133,16 +135,26 @@ async def initiate_shap_explainer():
                 shap_values_global = pickle.load(f)
         if isinstance(model, XGBClassifier):
             feature_names = model.feature_names_in_.tolist()
+            shap_values_global = shap_values_global.tolist()
         elif isinstance(model, RandomForestClassifier):
             feature_names = model.feature_names_in_.tolist()
+            shap_values_global = shap_values_global[1].tolist()
         elif isinstance(model, LGBMClassifier):
             feature_names = model.feature_name_
+            shap_values_global = shap_values_global[1].tolist()
+    
+    shap_values_dict = {
+        'shap_values': shap_values_global,
+        'feature_names': feature_names,
+        'expected_value': None
+    }
+    return shap_values_dict
 
 @app.post('/shap_feature_importance')
 def get_shap_feature_importance(shap_feature_importance_dict: dict):
     feature_scale = shap_feature_importance_dict['feature_scale']
     if feature_scale == 'Global':
-        shap_values = shap_values_global.tolist() if isinstance(model, XGBClassifier) else shap_values_global[1].tolist()
+        shap_values = shap_values_global#.tolist() if isinstance(model, XGBClassifier) else shap_values_global[1].tolist()
         expected_value = None
     elif feature_scale == 'Local':
         client_infos = pd.DataFrame.from_dict(shap_feature_importance_dict['client_infos'], orient='index').T
