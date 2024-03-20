@@ -10,8 +10,6 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from lightgbm import LGBMClassifier
 from mlflow.sklearn import mlflow
-from sklearn.ensemble import RandomForestClassifier
-from xgboost import XGBClassifier
 
 # 2. Create app and model objects
 app = FastAPI()
@@ -56,25 +54,7 @@ async def get_global_feature_importance()-> dict:
         dict: A dictionary containing the global feature importance information.
     """
 
-    if isinstance(model, XGBClassifier):
-        feature_importance_dict = {
-            'model_type': 'XGBClassifier',
-            'feature_importance': {
-                'weight': model.get_booster().get_score(importance_type='weight'),
-                'cover': model.get_booster().get_score(importance_type='cover'),
-                'gain': model.get_booster().get_score(importance_type='gain')
-            }
-        }
-
-    elif isinstance(model, RandomForestClassifier):
-        feature_importance_dict = {
-            'model_type': 'RandomForestClassifier',
-            'feature_importance': {
-                'gini': dict(zip(model.feature_names_in_, model.feature_importances_))
-            }
-        }
-
-    elif isinstance(model, LGBMClassifier):
+    if isinstance(model, LGBMClassifier):
         feature_importance_dict = {
             'model_type': 'LGBMClassifier',
             'feature_importance': {
@@ -140,15 +120,7 @@ async def initiate_shap_explainer(data_for_shap_initiation: dict)-> dict:
     data = pd.DataFrame.from_dict(data_for_shap_initiation, orient='index')
     shap_values_global = explainer.shap_values(data)
 
-    if isinstance(model, XGBClassifier):
-        feature_names = model.feature_names_in_.tolist()
-        shap_values_global = shap_values_global.tolist()
-
-    elif isinstance(model, RandomForestClassifier):
-        feature_names = model.feature_names_in_.tolist()
-        shap_values_global = shap_values_global[1].tolist()
-
-    elif isinstance(model, LGBMClassifier):
+    if isinstance(model, LGBMClassifier):
         feature_names = model.feature_name_
         shap_values_global = shap_values_global[1].tolist()
     
@@ -180,8 +152,8 @@ def get_shap_feature_importance(shap_feature_importance_dict: dict)-> dict:
 
     elif feature_scale == 'Local':
         client_infos = pd.DataFrame.from_dict(shap_feature_importance_dict['client_infos'], orient='index').T
-        shap_values = explainer.shap_values(client_infos).tolist() if isinstance(model, XGBClassifier) else explainer.shap_values(client_infos)[1].tolist()
-        expected_value = explainer.expected_value.item() if isinstance(model, XGBClassifier) else explainer.expected_value[1].item()
+        shap_values = explainer.shap_values(client_infos)[1].tolist()
+        expected_value = explainer.expected_value[1].item()
 
     shap_values_dict = {
         'shap_values': shap_values,
