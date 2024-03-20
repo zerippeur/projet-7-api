@@ -16,7 +16,7 @@ app = FastAPI()
 
 load_dotenv('api.env')
 
-DEPLOY = strtobool(os.getenv('DEPLOY'))
+# DEPLOY = strtobool(os.getenv('DEPLOY'))
 
 MLFLOW_TRACKING_USERNAME = os.getenv('MLFLOW_TRACKING_USERNAME')
 MLFLOW_TRACKING_PASSWORD = os.getenv('MLFLOW_TRACKING_PASSWORD')
@@ -24,7 +24,7 @@ MLFLOW_TRACKING_URI = os.getenv('MLFLOW_TRACKING_URI')
 MLFLOW_MODEL_URI = os.getenv('MLFLOW_MODEL_URI')
 MLFLOW_RUN_ID = os.getenv('MLFLOW_RUN_ID')
 EXPLAINER_PATH = os.getenv('EXPLAINER_PATH')
-PORT = os.environ.get('PORT', 8000)
+# PORT = os.environ.get('PORT', 8000)
 
 mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
 model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI)
@@ -167,8 +167,8 @@ def get_shap_feature_importance(shap_feature_importance_dict: dict)-> dict:
 # first app stands for the pyhton file, second app for the API instance, --reload for automatic refresh
 #    Will run on http://127.0.0.1:8000
 if __name__ == '__main__':
-    port=int(PORT)
-    if DEPLOY:
-        uvicorn.run(app, host='0.0.0.0', port=port)
-    else:
-        uvicorn.run(app, host='127.0.0.1', port=port)
+    # port=int(PORT)
+    # if DEPLOY:
+    #     uvicorn.run(app, host='0.0.0.0', port=port)
+    # else:
+    uvicorn.run(app, host='127.0.0.1', port=8000)
