@@ -26,8 +26,14 @@ MLFLOW_RUN_ID = os.getenv('MLFLOW_RUN_ID')
 EXPLAINER_PATH = os.getenv('EXPLAINER_PATH')
 # PORT = os.environ.get('PORT', 8000)
 
-# Create an instance of the MlflowClient with the artifact_ignore_patterns parameter set
-# client = mlflow.tracking.MlflowClient(artifact_ignore_patterns=["^input_example"])
+# Get the root directory of the deployed app
+root_dir = os.path.dirname(os.path.realpath(__file__))
+print("Root directory:", root_dir)
+
+# List the contents of the root directory
+contents = os.listdir(root_dir)
+print("Contents of root directory:", contents)
+
 mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
 model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI)
 
