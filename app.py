@@ -14,7 +14,7 @@ from mlflow.sklearn import mlflow
 # 2. Create app and model objects
 app = FastAPI()
 
-load_dotenv('api.env')
+# load_dotenv('api.env')
 
 # DEPLOY = strtobool(os.getenv('DEPLOY'))
 
