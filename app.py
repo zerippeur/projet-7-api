@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from lightgbm import LGBMClassifier
 from mlflow.sklearn import mlflow
+import pathlib
 
 # 2. Create app and model objects
 app = FastAPI()
@@ -35,7 +36,12 @@ contents = os.listdir(root_dir)
 print("Contents of root directory:", contents)
 
 mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
-model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI)
+
+mlflow_dir = pathlib.Path.cwd() / "mlflow"
+mlflow_dir.mkdir(exist_ok=True)
+dst_path=str(mlflow_dir)
+
+model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)
 
 @app.get('/model_threshold')
 async def get_model_threshold()-> dict:
