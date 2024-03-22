@@ -31,15 +31,19 @@ EXPLAINER_PATH = os.getenv('EXPLAINER_PATH')
 root_dir = os.path.dirname(os.path.realpath(__file__))
 print("Root directory:", root_dir)
 
+mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
+
 # List the contents of the root directory
 contents = os.listdir(root_dir)
 print("Contents of root directory:", contents)
 
-mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
-
 mlflow_dir = pathlib.Path.cwd() / "mlflow"
 mlflow_dir.mkdir(exist_ok=True)
 dst_path=str(mlflow_dir)
+
+# List the contents of the root directory
+contents = os.listdir(root_dir)
+print("Contents of root directory:", contents)
 
 model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)
 
