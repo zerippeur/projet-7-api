@@ -25,7 +25,9 @@ MLFLOW_TRACKING_URI = os.getenv('MLFLOW_TRACKING_URI')
 MLFLOW_MODEL_URI = os.getenv('MLFLOW_MODEL_URI')
 MLFLOW_RUN_ID = os.getenv('MLFLOW_RUN_ID')
 EXPLAINER_PATH = os.getenv('EXPLAINER_PATH')
-# PORT = os.environ.get('PORT', 8000)
+
+for env_var in [MLFLOW_TRACKING_USERNAME, MLFLOW_TRACKING_PASSWORD, MLFLOW_TRACKING_URI, MLFLOW_MODEL_URI, MLFLOW_RUN_ID, EXPLAINER_PATH]:
+    print(env_var)
 
 # Get the root directory of the deployed app
 root_dir = os.path.dirname(os.path.realpath(__file__))
