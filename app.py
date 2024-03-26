@@ -11,6 +11,7 @@ from fastapi import FastAPI
 from lightgbm import LGBMClassifier
 from mlflow.sklearn import mlflow
 import pathlib
+from dagshub import get_repo_bucket_client
 
 # 2. Create app and model objects
 app = FastAPI()
@@ -20,34 +21,58 @@ app = FastAPI()
 # DEPLOY = strtobool(os.getenv('DEPLOY'))
 
 MLFLOW_TRACKING_USERNAME = os.getenv('MLFLOW_TRACKING_USERNAME')
-MLFLOW_TRACKING_PASSWORD = os.getenv('MLFLOW_TRACKING_PASSWORD')
-MLFLOW_TRACKING_URI = os.getenv('MLFLOW_TRACKING_URI')
-MLFLOW_MODEL_URI = os.getenv('MLFLOW_MODEL_URI')
-MLFLOW_RUN_ID = os.getenv('MLFLOW_RUN_ID')
-EXPLAINER_PATH = os.getenv('EXPLAINER_PATH')
+# MLFLOW_TRACKING_PASSWORD = os.getenv('MLFLOW_TRACKING_PASSWORD')
+# MLFLOW_TRACKING_URI = os.getenv('MLFLOW_TRACKING_URI')
+DAGSHUB_USER_TOKEN = os.getenv('DAGSHUB_USER_TOKEN')
+DAGSHUB_REPO = os.getenv('DAGSHUB_REPO')
+DAGSHUB_BUCKET = os.getenv('DAGSHUB_BUCKET')
+BEST_MODEL_NAME = os.getenv('BEST_MODEL_NAME')
+BEST_MODEL_VERSION = os.getenv('BEST_MODEL_VERSION')
+# MLFLOW_MODEL_URI = os.getenv('MLFLOW_MODEL_URI')
+# MLFLOW_RUN_ID = os.getenv('MLFLOW_RUN_ID')
+# EXPLAINER_PATH = os.getenv('EXPLAINER_PATH')
 
-for env_var in [MLFLOW_TRACKING_USERNAME, MLFLOW_TRACKING_PASSWORD, MLFLOW_TRACKING_URI, MLFLOW_MODEL_URI, MLFLOW_RUN_ID, EXPLAINER_PATH]:
-    print(env_var)
+# for env_var in [MLFLOW_TRACKING_USERNAME, MLFLOW_TRACKING_PASSWORD, MLFLOW_TRACKING_URI, MLFLOW_MODEL_URI, MLFLOW_RUN_ID, EXPLAINER_PATH]:
+#     print(env_var)
 
 # Get the root directory of the deployed app
-root_dir = os.path.dirname(os.path.realpath(__file__))
-print("Root directory:", root_dir)
+# root_dir = os.path.dirname(os.path.realpath(__file__))
+# print("Root directory:", root_dir)
 
-mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
+# mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
+# client = mlflow.MlflowClient()
+
+boto_client = get_repo_bucket_client(f"{MLFLOW_TRACKING_USERNAME}/{DAGSHUB_REPO}")
+
+best_model, shap_explainer, threshold = None, None, None
+
+for var, object in zip(["best_model", "shap_explainer", "threshold"], ["best_model.pkl", "shap_explainer.pkl", "threshold.pkl"]):
+    boto_client.download_file(
+        Bucket=f"{DAGSHUB_REPO}",
+        Key=f"{DAGSHUB_BUCKET}/{BEST_MODEL_NAME}/version-{BEST_MODEL_VERSION}/{object}",
+        Filename=object
+    )
+    with open(object, 'rb') as f:
+        if var == "best_model":
+            best_model = pickle.load(f)
+        elif var == "shap_explainer":
+            shap_explainer = pickle.load(f)
+        elif var == "threshold":
+            threshold = pickle.load(f)
 
 # List the contents of the root directory
-contents = os.listdir(root_dir)
-print("Contents of root directory:", contents)
+# contents = os.listdir(root_dir)
+# print("Contents of root directory:", contents)
 
-mlflow_dir = pathlib.Path.cwd() / "mlflow"
-mlflow_dir.mkdir(exist_ok=True)
-dst_path=str(mlflow_dir)
+# mlflow_dir = pathlib.Path.cwd() / "mlflow"
+# mlflow_dir.mkdir(exist_ok=True)
+# dst_path=str(mlflow_dir)
 
 # List the contents of the root directory
-contents = os.listdir(root_dir)
-print("Contents of root directory:", contents)
+# contents = os.listdir(root_dir)
+# print("Contents of root directory:", contents)
 
-model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)
+# model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)
 
 @app.get('/model_threshold')
 async def get_model_threshold()-> dict:
@@ -58,7 +83,7 @@ async def get_model_threshold()-> dict:
         dict: A dictionary containing the model threshold value.
     """
 
-    threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
+    # threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
     threshold_dict = {
         'threshold': threshold
     }
@@ -74,11 +99,11 @@ async def get_global_feature_importance()-> dict:
         dict: A dictionary containing the global feature importance information.
     """
 
-    if isinstance(model, LGBMClassifier):
+    if isinstance(best_model, LGBMClassifier):
         feature_importance_dict = {
             'model_type': 'LGBMClassifier',
             'feature_importance': {
-                'gain': dict(zip(model.feature_name_, model.feature_importances_.tolist())),
+                'gain': dict(zip(best_model.feature_name_, best_model.feature_importances_.tolist())),
             }
         }
 
@@ -98,7 +123,7 @@ def predict_credit_risk(prediction_dict: dict)-> dict:
 
     client_infos = pd.DataFrame.from_dict([prediction_dict['client_infos']])
     threshold = prediction_dict['threshold']
-    proba_repay_wo_risk = float(model.predict_proba(client_infos)[:,0][0])
+    proba_repay_wo_risk = float(best_model.predict_proba(client_infos)[:,0][0])
     risk_prediction = 0 if proba_repay_wo_risk > 1 - threshold else 1
 
     if proba_repay_wo_risk > 1 - threshold:
@@ -130,19 +155,20 @@ async def initiate_shap_explainer(data_for_shap_initiation: dict)-> dict:
         shap_values_dict: A dictionary containing the SHAP values, feature names, and expected value.
     """
 
-    global explainer
+    # global explainer
     global feature_names
     global shap_values_global
 
-    with open(mlflow.artifacts.download_artifacts(EXPLAINER_PATH), 'rb') as f:
-        explainer = pickle.load(f)
+    # with open(mlflow.artifacts.download_artifacts(EXPLAINER_PATH), 'rb') as f:
+    #     explainer = pickle.load(f)
 
     data = pd.DataFrame.from_dict(data_for_shap_initiation, orient='index')
-    shap_values_global = explainer.shap_values(data)
+    shap_values_global = shap_explainer.shap_values(data)
 
-    if isinstance(model, LGBMClassifier):
-        feature_names = model.feature_name_
-        shap_values_global = shap_values_global[1].tolist()
+
+    if isinstance(best_model, LGBMClassifier):
+        feature_names = best_model.feature_name_
+        shap_values_global = shap_values_global.tolist()
     
     shap_values_dict = {
         'shap_values': shap_values_global,
@@ -172,8 +198,8 @@ def get_shap_feature_importance(shap_feature_importance_dict: dict)-> dict:
 
     elif feature_scale == 'Local':
         client_infos = pd.DataFrame.from_dict(shap_feature_importance_dict['client_infos'], orient='index').T
-        shap_values = explainer.shap_values(client_infos)[1].tolist()
-        expected_value = explainer.expected_value[1].item()
+        shap_values = shap_explainer.shap_values(client_infos).tolist()
+        expected_value = shap_explainer.expected_value.item()
 
     shap_values_dict = {
         'shap_values': shap_values,
