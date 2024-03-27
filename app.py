@@ -46,19 +46,44 @@ boto_client = get_repo_bucket_client(f"{MLFLOW_TRACKING_USERNAME}/{DAGSHUB_REPO}
 
 best_model, shap_explainer, threshold = None, None, None
 
-for var, object in zip(["best_model", "shap_explainer", "threshold"], ["best_model.pkl", "shap_explainer.pkl", "threshold.pkl"]):
-    boto_client.download_file(
-        Bucket="mlflow-tracking",
-        Key=f"mlflow_bucket/LGBMClassifier/version-18/{object}",
-        Filename=object
-    )
-    with open(object, 'rb') as f:
-        if var == "best_model":
-            best_model = pickle.load(f)
-        elif var == "shap_explainer":
-            shap_explainer = pickle.load(f)
-        elif var == "threshold":
-            threshold = pickle.load(f)
+boto_client.download_file(
+    Bucket="mlflow-tracking",
+    Key="mlflow_bucket/LGBMClassifier/version-18/best_model.pkl",
+    Filename=best_model.pkl
+)
+with open("best_model.pkl", 'rb') as f:
+    best_model = pickle.load(f)
+
+boto_client.download_file(
+    Bucket="mlflow-tracking",
+    Key="mlflow_bucket/LGBMClassifier/version-18/shap_explainer.pkl",
+    Filename=shap_explainer.pkl
+)
+with open("shap_explainer.pkl", 'rb') as f:
+    shap_explainer = pickle.load(f)
+
+boto_client.download_file(
+    Bucket="mlflow-tracking",
+    Key="mlflow_bucket/LGBMClassifier/version-18/threshold.pkl",
+    Filename=threshold.pkl
+)
+with open("threshold.pkl", 'rb') as f:
+    threshold = pickle.load(f)
+
+
+# for var, object in zip(["best_model", "shap_explainer", "threshold"], ["best_model.pkl", "shap_explainer.pkl", "threshold.pkl"]):
+#     boto_client.download_file(
+#         Bucket="mlflow-tracking",
+#         Key=f"mlflow_bucket/LGBMClassifier/version-18/{object}",
+#         Filename=object
+#     )
+#     with open(object, 'rb') as f:
+#         if var == "best_model":
+#             best_model = pickle.load(f)
+#         elif var == "shap_explainer":
+#             shap_explainer = pickle.load(f)
+#         elif var == "threshold":
+#             threshold = pickle.load(f)
 
 # List the contents of the root directory
 # contents = os.listdir(root_dir)
