@@ -49,7 +49,7 @@ best_model, shap_explainer, threshold = None, None, None
 boto_client.download_file(
     Bucket="mlflow-tracking",
     Key="mlflow_bucket/LGBMClassifier/version-18/best_model.pkl",
-    Filename=best_model.pkl
+    Filename="best_model.pkl"
 )
 with open("best_model.pkl", 'rb') as f:
     best_model = pickle.load(f)
@@ -57,7 +57,7 @@ with open("best_model.pkl", 'rb') as f:
 boto_client.download_file(
     Bucket="mlflow-tracking",
     Key="mlflow_bucket/LGBMClassifier/version-18/shap_explainer.pkl",
-    Filename=shap_explainer.pkl
+    Filename="shap_explainer.pkl"
 )
 with open("shap_explainer.pkl", 'rb') as f:
     shap_explainer = pickle.load(f)
