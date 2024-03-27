@@ -68,6 +68,8 @@ boto_client.download_file(
 with open("threshold.pkl", 'rb') as f:
     threshold = pickle.load(f)
 
+if isinstance(best_model, LGBMClassifier):
+    feature_names = best_model.feature_name_
 
 # for var, object in zip(["best_model", "shap_explainer", "threshold"], ["best_model.pkl", "shap_explainer.pkl", "threshold.pkl"]):
 #     boto_client.download_file(
@@ -179,7 +181,6 @@ async def initiate_shap_explainer(data_for_shap_initiation: dict)-> dict:
     """
 
     # global explainer
-    global feature_names
     global shap_values_global
 
     # with open(mlflow.artifacts.download_artifacts(EXPLAINER_PATH), 'rb') as f:
@@ -190,7 +191,6 @@ async def initiate_shap_explainer(data_for_shap_initiation: dict)-> dict:
 
 
     if isinstance(best_model, LGBMClassifier):
-        feature_names = best_model.feature_name_
         shap_values_global = shap_values_global.tolist()
     
     shap_values_dict = {
