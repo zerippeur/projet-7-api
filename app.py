@@ -1,6 +1,6 @@
 # Standard library imports
 import os
-from distutils.util import strtobool
+# from distutils.util import strtobool
 
 # Third-party imports
 import pandas as pd
@@ -9,8 +9,8 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from lightgbm import LGBMClassifier
-from mlflow.sklearn import mlflow
-import pathlib
+# from mlflow.sklearn import mlflow
+# import pathlib
 from dagshub import get_repo_bucket_client
 
 # 2. Create app and model objects
