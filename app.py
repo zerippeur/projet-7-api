@@ -65,7 +65,7 @@ with open("shap_explainer.pkl", 'rb') as f:
 boto_client.download_file(
     Bucket="mlflow-tracking",
     Key="mlflow_bucket/LGBMClassifier/version-18/threshold.pkl",
-    Filename=threshold.pkl
+    Filename="threshold.pkl"
 )
 with open("threshold.pkl", 'rb') as f:
     threshold = pickle.load(f)
