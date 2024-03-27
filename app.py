@@ -48,8 +48,8 @@ best_model, shap_explainer, threshold = None, None, None
 
 for var, object in zip(["best_model", "shap_explainer", "threshold"], ["best_model.pkl", "shap_explainer.pkl", "threshold.pkl"]):
     boto_client.download_file(
-        Bucket=f"{DAGSHUB_REPO}",
-        Key=f"{DAGSHUB_BUCKET}/{BEST_MODEL_NAME}/version-{BEST_MODEL_VERSION}/{object}",
+        Bucket="mlflow-tracking",
+        Key=f"mlflow_bucket/LGBMClassifier/version-18/{object}",
         Filename=object
     )
     with open(object, 'rb') as f:
