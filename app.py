@@ -44,8 +44,6 @@ BEST_MODEL_VERSION = os.getenv('BEST_MODEL_VERSION')
 
 boto_client = get_repo_bucket_client(f"{MLFLOW_TRACKING_USERNAME}/{DAGSHUB_REPO}")
 
-best_model, shap_explainer, threshold = None, None, None
-
 boto_client.download_file(
     Bucket="mlflow-tracking",
     Key="mlflow_bucket/LGBMClassifier/version-18/best_model.pkl",
