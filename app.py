@@ -32,58 +32,51 @@ BEST_MODEL_VERSION = os.getenv('BEST_MODEL_VERSION')
 # MLFLOW_RUN_ID = os.getenv('MLFLOW_RUN_ID')
 # EXPLAINER_PATH = os.getenv('EXPLAINER_PATH')
 
-# for env_var in [MLFLOW_TRACKING_USERNAME, MLFLOW_TRACKING_PASSWORD, MLFLOW_TRACKING_URI, MLFLOW_MODEL_URI, MLFLOW_RUN_ID, EXPLAINER_PATH]:
-#     print(env_var)
-
-# Get the root directory of the deployed app
-# root_dir = os.path.dirname(os.path.realpath(__file__))
-# print("Root directory:", root_dir)
-
 # mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
 # client = mlflow.MlflowClient()
 
 boto_client = get_repo_bucket_client(f"{MLFLOW_TRACKING_USERNAME}/{DAGSHUB_REPO}")
 
-boto_client.download_file(
-    Bucket="mlflow-tracking",
-    Key="mlflow_bucket/LGBMClassifier/version-18/best_model.pkl",
-    Filename="best_model.pkl"
-)
-with open("best_model.pkl", 'rb') as f:
-    best_model = pickle.load(f)
+# boto_client.download_file(
+#     Bucket="mlflow-tracking",
+#     Key="mlflow_bucket/LGBMClassifier/version-18/best_model.pkl",
+#     Filename="best_model.pkl"
+# )
+# with open("best_model.pkl", 'rb') as f:
+#     best_model = pickle.load(f)
 
-boto_client.download_file(
-    Bucket="mlflow-tracking",
-    Key="mlflow_bucket/LGBMClassifier/version-18/shap_explainer.pkl",
-    Filename="shap_explainer.pkl"
-)
-with open("shap_explainer.pkl", 'rb') as f:
-    shap_explainer = pickle.load(f)
+# boto_client.download_file(
+#     Bucket="mlflow-tracking",
+#     Key="mlflow_bucket/LGBMClassifier/version-18/shap_explainer.pkl",
+#     Filename="shap_explainer.pkl"
+# )
+# with open("shap_explainer.pkl", 'rb') as f:
+#     shap_explainer = pickle.load(f)
 
-boto_client.download_file(
-    Bucket="mlflow-tracking",
-    Key="mlflow_bucket/LGBMClassifier/version-18/threshold.pkl",
-    Filename="threshold.pkl"
-)
-with open("threshold.pkl", 'rb') as f:
-    threshold = pickle.load(f)
+# boto_client.download_file(
+#     Bucket="mlflow-tracking",
+#     Key="mlflow_bucket/LGBMClassifier/version-18/threshold.pkl",
+#     Filename="threshold.pkl"
+# )
+# with open("threshold.pkl", 'rb') as f:
+#     threshold = pickle.load(f)
+
+for var, object in zip(["best_model", "shap_explainer", "threshold"], ["best_model.pkl", "shap_explainer.pkl", "threshold.pkl"]):
+    boto_client.download_file(
+        Bucket=f"{DAGSHUB_REPO}",
+        Key=f"{DAGSHUB_BUCKET}/{BEST_MODEL_NAME}/version-{BEST_MODEL_VERSION}/{object}",
+        Filename=object
+    )
+    with open(object, 'rb') as f:
+        if var == "best_model":
+            best_model = pickle.load(f)
+        elif var == "shap_explainer":
+            shap_explainer = pickle.load(f)
+        elif var == "threshold":
+            threshold = pickle.load(f)
 
 if isinstance(best_model, LGBMClassifier):
     feature_names = best_model.feature_name_
-
-# for var, object in zip(["best_model", "shap_explainer", "threshold"], ["best_model.pkl", "shap_explainer.pkl", "threshold.pkl"]):
-#     boto_client.download_file(
-#         Bucket="mlflow-tracking",
-#         Key=f"mlflow_bucket/LGBMClassifier/version-18/{object}",
-#         Filename=object
-#     )
-#     with open(object, 'rb') as f:
-#         if var == "best_model":
-#             best_model = pickle.load(f)
-#         elif var == "shap_explainer":
-#             shap_explainer = pickle.load(f)
-#         elif var == "threshold":
-#             threshold = pickle.load(f)
 
 # List the contents of the root directory
 # contents = os.listdir(root_dir)
@@ -183,9 +176,6 @@ async def initiate_shap_explainer(data_for_shap_initiation: dict)-> dict:
     # global explainer
     global shap_values_global
 
-    # with open(mlflow.artifacts.download_artifacts(EXPLAINER_PATH), 'rb') as f:
-    #     explainer = pickle.load(f)
-
     data = pd.DataFrame.from_dict(data_for_shap_initiation, orient='index')
     shap_values_global = shap_explainer.shap_values(data)
 
@@ -216,7 +206,7 @@ def get_shap_feature_importance(shap_feature_importance_dict: dict)-> dict:
     feature_scale = shap_feature_importance_dict['feature_scale']
 
     if feature_scale == 'Global':
-        shap_values = shap_values_global#.tolist() if isinstance(model, XGBClassifier) else shap_values_global[1].tolist()
+        shap_values = shap_values_global
         expected_value = None
 
     elif feature_scale == 'Local':
@@ -236,8 +226,4 @@ def get_shap_feature_importance(shap_feature_importance_dict: dict)-> dict:
 # first app stands for the pyhton file, second app for the API instance, --reload for automatic refresh
 #    Will run on http://127.0.0.1:8000
 if __name__ == '__main__':
-    # port=int(PORT)
-    # if DEPLOY:
-    #     uvicorn.run(app, host='0.0.0.0', port=port)
-    # else:
     uvicorn.run(app, host='127.0.0.1', port=8000)
