@@ -35,6 +35,13 @@ BEST_MODEL_NAME = os.getenv("BEST_MODEL_NAME")
 BEST_MODEL_VERSION = os.getenv("BEST_MODEL_VERSION")
 
 mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
+# Get the root directory of your FastAPI application
+root_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Create the 'mlflow' directory
+mlflow_dir = os.path.join(root_dir, 'mlflow')
+os.makedirs(mlflow_dir, exist_ok=True)
+
 dst_path = "mlflow"
 best_model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)
 with open(f"{dst_path}/{ARTIFACT_PATH}/shap_explainer_{BEST_MODEL_NAME}_version_{BEST_MODEL_VERSION}.pkl", 'rb') as f:
