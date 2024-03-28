@@ -9,9 +9,9 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from lightgbm import LGBMClassifier
-# from mlflow.sklearn import mlflow
+from mlflow.sklearn import mlflow
 # import pathlib
-from dagshub import get_repo_bucket_client
+# from dagshub import get_repo_bucket_client
 
 # 2. Create app and model objects
 app = FastAPI()
@@ -20,22 +20,30 @@ app = FastAPI()
 
 # DEPLOY = strtobool(os.getenv('DEPLOY'))
 
-MLFLOW_TRACKING_USERNAME = os.getenv('MLFLOW_TRACKING_USERNAME')
-# MLFLOW_TRACKING_PASSWORD = os.getenv('MLFLOW_TRACKING_PASSWORD')
-# MLFLOW_TRACKING_URI = os.getenv('MLFLOW_TRACKING_URI')
-DAGSHUB_USER_TOKEN = os.getenv('DAGSHUB_USER_TOKEN')
-DAGSHUB_REPO = os.getenv('DAGSHUB_REPO')
-DAGSHUB_BUCKET = os.getenv('DAGSHUB_BUCKET')
-BEST_MODEL_NAME = os.getenv('BEST_MODEL_NAME')
-BEST_MODEL_VERSION = os.getenv('BEST_MODEL_VERSION')
-# MLFLOW_MODEL_URI = os.getenv('MLFLOW_MODEL_URI')
-# MLFLOW_RUN_ID = os.getenv('MLFLOW_RUN_ID')
-# EXPLAINER_PATH = os.getenv('EXPLAINER_PATH')
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI")
+MLFLOW_TRACKING_USERNAME = os.getenv("MLFLOW_TRACKING_USERNAME")
+MLFLOW_TRACKING_PASSWORD = os.getenv("MLFLOW_TRACKING_PASSWORD")
+MLFLOW_RUN_ID = os.getenv("MLFLOW_RUN_ID")
+MLFLOW_MODEL_URI = os.getenv("MLFLOW_MODEL_URI")
+# MLFLOW_MODEL_URI_VERSION="runs:/f972b892ee1a4f2cac146a26052c1b40/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run"
+# EXPLAINER_PATH="mlflow-artifacts:/86617b78fa1941f9a1c21aa470029781/f972b892ee1a4f2cac146a26052c1b40/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_LGBMClassifier_version_18.pkl"
+ARTIFACT_PATH = os.getenv("ARTIFACT_PATH")
+# DAGSHUB_USER_TOKEN="c83285096695b6e8ec56ba2b07dfbeff75e9cadd"
+# DAGSHUB_REPO="mlflow-tracking"
+# DAGSHUB_BUCKET="mlflow_bucket"
+BEST_MODEL_NAME = os.getenv("BEST_MODEL_NAME")
+BEST_MODEL_VERSION = os.getenv("BEST_MODEL_VERSION")
 
-# mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
+mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
+dst_path = "mlflow"
+best_model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)
+with open(f"{dst_path}/{ARTIFACT_PATH}/shap_explainer_{BEST_MODEL_NAME}_version_{BEST_MODEL_VERSION}.pkl", 'rb') as f:
+    shap_explainer = pickle.load(f)
+threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
+
 # client = mlflow.MlflowClient()
 
-boto_client = get_repo_bucket_client(f"{MLFLOW_TRACKING_USERNAME}/{DAGSHUB_REPO}")
+# boto_client = get_repo_bucket_client(f"{MLFLOW_TRACKING_USERNAME}/{DAGSHUB_REPO}")
 
 # boto_client.download_file(
 #     Bucket="mlflow-tracking",
@@ -61,19 +69,19 @@ boto_client = get_repo_bucket_client(f"{MLFLOW_TRACKING_USERNAME}/{DAGSHUB_REPO}
 # with open("threshold.pkl", 'rb') as f:
 #     threshold = pickle.load(f)
 
-for var, object in zip(["best_model", "shap_explainer", "threshold"], ["best_model.pkl", "shap_explainer.pkl", "threshold.pkl"]):
-    boto_client.download_file(
-        Bucket=f"{DAGSHUB_REPO}",
-        Key=f"{DAGSHUB_BUCKET}/{BEST_MODEL_NAME}/version-{BEST_MODEL_VERSION}/{object}",
-        Filename=object
-    )
-    with open(object, 'rb') as f:
-        if var == "best_model":
-            best_model = pickle.load(f)
-        elif var == "shap_explainer":
-            shap_explainer = pickle.load(f)
-        elif var == "threshold":
-            threshold = pickle.load(f)
+# for var, object in zip(["best_model", "shap_explainer", "threshold"], ["best_model.pkl", "shap_explainer.pkl", "threshold.pkl"]):
+#     boto_client.download_file(
+#         Bucket=f"{DAGSHUB_REPO}",
+#         Key=f"{DAGSHUB_BUCKET}/{BEST_MODEL_NAME}/version-{BEST_MODEL_VERSION}/{object}",
+#         Filename=object
+#     )
+#     with open(object, 'rb') as f:
+#         if var == "best_model":
+#             best_model = pickle.load(f)
+#         elif var == "shap_explainer":
+#             shap_explainer = pickle.load(f)
+#         elif var == "threshold":
+#             threshold = pickle.load(f)
 
 if isinstance(best_model, LGBMClassifier):
     feature_names = best_model.feature_name_
