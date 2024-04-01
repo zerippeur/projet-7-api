@@ -10,27 +10,18 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from lightgbm import LGBMClassifier
 from mlflow.sklearn import mlflow
-# import pathlib
-# from dagshub import get_repo_bucket_client
 
 # 2. Create app and model objects
 app = FastAPI()
 
 # load_dotenv('api.env')
 
-# DEPLOY = strtobool(os.getenv('DEPLOY'))
-
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI")
 MLFLOW_TRACKING_USERNAME = os.getenv("MLFLOW_TRACKING_USERNAME")
 MLFLOW_TRACKING_PASSWORD = os.getenv("MLFLOW_TRACKING_PASSWORD")
 MLFLOW_RUN_ID = os.getenv("MLFLOW_RUN_ID")
 MLFLOW_MODEL_URI = os.getenv("MLFLOW_MODEL_URI")
-# MLFLOW_MODEL_URI_VERSION="runs:/f972b892ee1a4f2cac146a26052c1b40/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run"
-# EXPLAINER_PATH="mlflow-artifacts:/86617b78fa1941f9a1c21aa470029781/f972b892ee1a4f2cac146a26052c1b40/artifacts/LGBMClassifier_model__bayes_search__randomundersampler_balancing__tuning_run/shap_explainer_LGBMClassifier_version_18.pkl"
 ARTIFACT_PATH = os.getenv("ARTIFACT_PATH")
-# DAGSHUB_USER_TOKEN="c83285096695b6e8ec56ba2b07dfbeff75e9cadd"
-# DAGSHUB_REPO="mlflow-tracking"
-# DAGSHUB_BUCKET="mlflow_bucket"
 BEST_MODEL_NAME = os.getenv("BEST_MODEL_NAME")
 BEST_MODEL_VERSION = os.getenv("BEST_MODEL_VERSION")
 
@@ -48,64 +39,8 @@ with open(f"{dst_path}/{ARTIFACT_PATH}/shap_explainer_{BEST_MODEL_NAME}_version_
     shap_explainer = pickle.load(f)
 threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
 
-# client = mlflow.MlflowClient()
-
-# boto_client = get_repo_bucket_client(f"{MLFLOW_TRACKING_USERNAME}/{DAGSHUB_REPO}")
-
-# boto_client.download_file(
-#     Bucket="mlflow-tracking",
-#     Key="mlflow_bucket/LGBMClassifier/version-18/best_model.pkl",
-#     Filename="best_model.pkl"
-# )
-# with open("best_model.pkl", 'rb') as f:
-#     best_model = pickle.load(f)
-
-# boto_client.download_file(
-#     Bucket="mlflow-tracking",
-#     Key="mlflow_bucket/LGBMClassifier/version-18/shap_explainer.pkl",
-#     Filename="shap_explainer.pkl"
-# )
-# with open("shap_explainer.pkl", 'rb') as f:
-#     shap_explainer = pickle.load(f)
-
-# boto_client.download_file(
-#     Bucket="mlflow-tracking",
-#     Key="mlflow_bucket/LGBMClassifier/version-18/threshold.pkl",
-#     Filename="threshold.pkl"
-# )
-# with open("threshold.pkl", 'rb') as f:
-#     threshold = pickle.load(f)
-
-# for var, object in zip(["best_model", "shap_explainer", "threshold"], ["best_model.pkl", "shap_explainer.pkl", "threshold.pkl"]):
-#     boto_client.download_file(
-#         Bucket=f"{DAGSHUB_REPO}",
-#         Key=f"{DAGSHUB_BUCKET}/{BEST_MODEL_NAME}/version-{BEST_MODEL_VERSION}/{object}",
-#         Filename=object
-#     )
-#     with open(object, 'rb') as f:
-#         if var == "best_model":
-#             best_model = pickle.load(f)
-#         elif var == "shap_explainer":
-#             shap_explainer = pickle.load(f)
-#         elif var == "threshold":
-#             threshold = pickle.load(f)
-
 if isinstance(best_model, LGBMClassifier):
     feature_names = best_model.feature_name_
-
-# List the contents of the root directory
-# contents = os.listdir(root_dir)
-# print("Contents of root directory:", contents)
-
-# mlflow_dir = pathlib.Path.cwd() / "mlflow"
-# mlflow_dir.mkdir(exist_ok=True)
-# dst_path=str(mlflow_dir)
-
-# List the contents of the root directory
-# contents = os.listdir(root_dir)
-# print("Contents of root directory:", contents)
-
-# model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)
 
 @app.get('/model_threshold')
 async def get_model_threshold()-> dict:
@@ -115,8 +50,7 @@ async def get_model_threshold()-> dict:
     Returns:
         dict: A dictionary containing the model threshold value.
     """
-
-    # threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
+    
     threshold_dict = {
         'threshold': threshold
     }
@@ -157,16 +91,18 @@ def predict_credit_risk(prediction_dict: dict)-> dict:
     client_infos = pd.DataFrame.from_dict([prediction_dict['client_infos']])
     threshold = prediction_dict['threshold']
     proba_repay_wo_risk = float(best_model.predict_proba(client_infos)[:,0][0])
-    risk_prediction = 0 if proba_repay_wo_risk > 1 - threshold else 1
 
     if proba_repay_wo_risk > 1 - threshold:
         risk_category = "SAFE"
+        risk_prediction = 0
 
     elif proba_repay_wo_risk > 1 - threshold - 0.05:
         risk_category = "RISKY"
+        risk_prediction = 1
 
     else:
         risk_category = "NOPE"
+        risk_prediction = 1
 
     prediction_dict = {
         'prediction': risk_prediction,
