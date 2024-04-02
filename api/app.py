@@ -15,6 +15,8 @@ from mlflow.sklearn import mlflow
 # 2. Create app and model objects
 app = FastAPI()
 
+print('kebab-case')
+
 try:
     load_dotenv('api.env')
 except FileNotFoundError:
