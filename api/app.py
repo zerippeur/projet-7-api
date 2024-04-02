@@ -28,6 +28,7 @@ BEST_MODEL_VERSION = os.getenv("BEST_MODEL_VERSION")
 mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
 # Get the root directory of your FastAPI application
 root_dir = os.path.dirname(os.path.abspath(__file__))
+print(root_dir)
 
 # Create the 'mlflow' directory
 mlflow_dir = os.path.join(root_dir, 'mlflow')
@@ -41,6 +42,8 @@ threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
 
 if isinstance(best_model, LGBMClassifier):
     feature_names = best_model.feature_name_
+
+os.removedirs(mlflow_dir)
 
 @app.get('/model_threshold')
 async def get_model_threshold()-> dict:
