@@ -31,7 +31,7 @@ root_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Create the 'mlflow' directory
 mlflow_dir = os.path.join(root_dir, 'mlflow')
-os.makedirs(mlflow_dir, exist_ok=True)
+os.makedirs(mlflow_dir, exist_ok=False)
 
 dst_path = "mlflow"
 best_model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)
