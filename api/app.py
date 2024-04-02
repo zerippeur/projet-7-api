@@ -1,5 +1,6 @@
 # Standard library imports
 import os
+import pathlib
 # from distutils.util import strtobool
 
 # Third-party imports
@@ -14,27 +15,30 @@ from mlflow.sklearn import mlflow
 # 2. Create app and model objects
 app = FastAPI()
 
-# load_dotenv('api.env')
+try:
+    load_dotenv('api.env')
+except FileNotFoundError:
+    pass
 
-MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI")
-MLFLOW_TRACKING_USERNAME = os.getenv("MLFLOW_TRACKING_USERNAME")
-MLFLOW_TRACKING_PASSWORD = os.getenv("MLFLOW_TRACKING_PASSWORD")
-MLFLOW_RUN_ID = os.getenv("MLFLOW_RUN_ID")
-MLFLOW_MODEL_URI = os.getenv("MLFLOW_MODEL_URI")
-ARTIFACT_PATH = os.getenv("ARTIFACT_PATH")
-BEST_MODEL_NAME = os.getenv("BEST_MODEL_NAME")
-BEST_MODEL_VERSION = os.getenv("BEST_MODEL_VERSION")
+MLFLOW_TRACKING_URI = os.environ["MLFLOW_TRACKING_URI"]
+MLFLOW_TRACKING_USERNAME = os.environ["MLFLOW_TRACKING_USERNAME"]
+MLFLOW_TRACKING_PASSWORD = os.environ["MLFLOW_TRACKING_PASSWORD"]
+MLFLOW_RUN_ID = os.environ["MLFLOW_RUN_ID"]
+MLFLOW_MODEL_URI = os.environ["MLFLOW_MODEL_URI"]
+ARTIFACT_PATH = os.environ["ARTIFACT_PATH"]
+BEST_MODEL_NAME = os.environ["BEST_MODEL_NAME"]
+BEST_MODEL_VERSION = os.environ["BEST_MODEL_VERSION"]
 
 mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
 # Get the root directory of your FastAPI application
-root_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = str(pathlib.Path(__file__).parent.parent)
 print(root_dir)
 
 # Create the 'mlflow' directory
 mlflow_dir = os.path.join(root_dir, 'mlflow')
 os.makedirs(mlflow_dir, exist_ok=True)
 
-dst_path = "mlflow"
+dst_path = mlflow_dir
 best_model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)
 with open(f"{dst_path}/{ARTIFACT_PATH}/shap_explainer_{BEST_MODEL_NAME}_version_{BEST_MODEL_VERSION}.pkl", 'rb') as f:
     shap_explainer = pickle.load(f)
