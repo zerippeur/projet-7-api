@@ -1,6 +1,7 @@
 # Standard library imports
 import os
 import pathlib
+import shutil
 # from distutils.util import strtobool
 
 # Third-party imports
@@ -47,7 +48,7 @@ threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
 if isinstance(best_model, LGBMClassifier):
     feature_names = best_model.feature_name_
 
-os.removedirs(mlflow_dir)
+shutil.rmtree(mlflow_dir)
 
 @app.get('/model_threshold')
 async def get_model_threshold()-> dict:
