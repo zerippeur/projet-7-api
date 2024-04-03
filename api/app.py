@@ -38,7 +38,10 @@ print(f'ROOT DIR: {root_dir}')
 
 # Create the 'mlflow' directory
 mlflow_dir = os.path.join(root_dir, 'mlflow')
-shutil.rmtree(mlflow_dir)
+try:
+    shutil.rmtree(mlflow_dir)
+except FileNotFoundError:
+    pass
 os.makedirs(mlflow_dir, exist_ok=False)
 print(f'mlflow_dir: {mlflow_dir}')
 
@@ -51,7 +54,10 @@ threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
 if isinstance(best_model, LGBMClassifier):
     feature_names = best_model.feature_name_
 
-shutil.rmtree(mlflow_dir)
+try:
+    shutil.rmtree(mlflow_dir)
+except FileNotFoundError:
+    pass
 
 @app.get('/model_threshold')
 async def get_model_threshold()-> dict:
