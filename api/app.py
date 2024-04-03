@@ -32,32 +32,32 @@ BEST_MODEL_VERSION = os.environ["BEST_MODEL_VERSION"]
 
 mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
 # Get the root directory of your FastAPI application
-root_dir = str(pathlib.Path(__file__).parent.parent)
-print(f'ROOT DIR: {root_dir}')
+# root_dir = str(pathlib.Path(__file__).parent.parent)
+# print(f'ROOT DIR: {root_dir}')
 
 
-# Create the 'mlflow' directory
-mlflow_dir = os.path.join(root_dir, 'mlflow')
-try:
-    shutil.rmtree(mlflow_dir)
-except FileNotFoundError:
-    pass
-os.makedirs(mlflow_dir, exist_ok=False)
-print(f'mlflow_dir: {mlflow_dir}')
+# # Create the 'mlflow' directory
+# mlflow_dir = os.path.join(root_dir, 'mlflow')
+# try:
+#     shutil.rmtree(mlflow_dir)
+# except FileNotFoundError:
+#     pass
+# os.makedirs(mlflow_dir, exist_ok=False)
+# print(f'mlflow_dir: {mlflow_dir}')
 
-dst_path = mlflow_dir
-best_model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)
-with open(f"{dst_path}/{ARTIFACT_PATH}/shap_explainer_{BEST_MODEL_NAME}_version_{BEST_MODEL_VERSION}.pkl", 'rb') as f:
+# dst_path = mlflow_dir
+best_model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path='api/')#, dst_path=dst_path)
+with open(f"api/{ARTIFACT_PATH}/shap_explainer_{BEST_MODEL_NAME}_version_{BEST_MODEL_VERSION}.pkl", 'rb') as f:
     shap_explainer = pickle.load(f)
 threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
 
 if isinstance(best_model, LGBMClassifier):
     feature_names = best_model.feature_name_
 
-try:
-    shutil.rmtree(mlflow_dir)
-except FileNotFoundError:
-    pass
+# try:
+#     shutil.rmtree(mlflow_dir)
+# except FileNotFoundError:
+#     pass
 
 @app.get('/model_threshold')
 async def get_model_threshold()-> dict:
