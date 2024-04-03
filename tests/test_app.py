@@ -1,6 +1,7 @@
 import pandas as pd
 import pickle
 from lightgbm import LGBMClassifier
+from api.app import predict_credit_risk, initiate_shap_explainer
 
 # Loading the mocked data for shap initiation as the dashboard would send them to the app
 with open('data_for_shap_initiation.pkl', 'rb') as f:
@@ -22,65 +23,65 @@ with open('feature_names.pkl', 'rb') as f:
 with open('threshold.pkl', 'rb') as f:
     threshold = pickle.load(f)
 
-def predict_credit_risk(prediction_dict: dict)-> dict:
-    """
-    Function to predict credit risk based on a dictionary input.
+# def predict_credit_risk(prediction_dict: dict)-> dict:
+#     """
+#     Function to predict credit risk based on a dictionary input.
 
-    Parameters:
-        prediction_dict: dictionary containing client information
+#     Parameters:
+#         prediction_dict: dictionary containing client information
 
-    Returns:
-        prediction_dict: A dictionary with prediction, confidence, and risk category
-    """
+#     Returns:
+#         prediction_dict: A dictionary with prediction, confidence, and risk category
+#     """
 
-    client_infos = pd.DataFrame.from_dict([prediction_dict['client_infos']])
-    threshold = prediction_dict['threshold']
-    proba_repay_wo_risk = float(best_model.predict_proba(client_infos)[:,0][0])
+#     client_infos = pd.DataFrame.from_dict([prediction_dict['client_infos']])
+#     threshold = prediction_dict['threshold']
+#     proba_repay_wo_risk = float(best_model.predict_proba(client_infos)[:,0][0])
 
-    if proba_repay_wo_risk > 1 - threshold:
-        risk_category = "SAFE"
-        risk_prediction = 0
+#     if proba_repay_wo_risk > 1 - threshold:
+#         risk_category = "SAFE"
+#         risk_prediction = 0
 
-    elif proba_repay_wo_risk > 1 - threshold - 0.05:
-        risk_category = "RISKY"
-        risk_prediction = 1
+#     elif proba_repay_wo_risk > 1 - threshold - 0.05:
+#         risk_category = "RISKY"
+#         risk_prediction = 1
 
-    else:
-        risk_category = "NOPE"
-        risk_prediction = 1
+#     else:
+#         risk_category = "NOPE"
+#         risk_prediction = 1
 
-    prediction_dict = {
-        'prediction': risk_prediction,
-        'confidence': proba_repay_wo_risk,
-        'risk_category': risk_category
-    }
+#     prediction_dict = {
+#         'prediction': risk_prediction,
+#         'confidence': proba_repay_wo_risk,
+#         'risk_category': risk_category
+#     }
 
-    return prediction_dict
+#     return prediction_dict
 
-def initiate_shap_explainer(data_for_shap_initiation: dict)-> dict:
-    """
-    Initiates the SHAP explainer with the given data and returns the SHAP values, feature names, and expected value.
+# def initiate_shap_explainer(data_for_shap_initiation: dict)-> dict:
+#     """
+#     Initiates the SHAP explainer with the given data and returns the SHAP values, feature names, and expected value.
     
-    Parameters:
-        data_for_shap_initiation (dict): The data used to initiate the SHAP explainer.
+#     Parameters:
+#         data_for_shap_initiation (dict): The data used to initiate the SHAP explainer.
         
-    Returns:
-        shap_values_dict: A dictionary containing the SHAP values, feature names, and expected value.
-    """
+#     Returns:
+#         shap_values_dict: A dictionary containing the SHAP values, feature names, and expected value.
+#     """
 
-    data = pd.DataFrame.from_dict(data_for_shap_initiation, orient='index')
-    shap_values_global = shap_explainer.shap_values(data, check_additivity=False)
+#     data = pd.DataFrame.from_dict(data_for_shap_initiation, orient='index')
+#     shap_values_global = shap_explainer.shap_values(data, check_additivity=False)
 
 
-    if isinstance(best_model, LGBMClassifier):
-        shap_values_global = shap_values_global.tolist()
+#     if isinstance(best_model, LGBMClassifier):
+#         shap_values_global = shap_values_global.tolist()
     
-    shap_values_dict = {
-        'shap_values': shap_values_global,
-        'feature_names': feature_names,
-        'expected_value': None
-    }
-    return shap_values_dict
+#     shap_values_dict = {
+#         'shap_values': shap_values_global,
+#         'feature_names': feature_names,
+#         'expected_value': None
+#     }
+#     return shap_values_dict
 
 def test_predict_credit_risk():
     """

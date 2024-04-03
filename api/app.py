@@ -17,7 +17,7 @@ from mlflow.sklearn import mlflow
 app = FastAPI()
 
 try:
-    load_dotenv('api.env')
+    load_dotenv('api/api.env')
 except FileNotFoundError:
     pass
 
@@ -33,11 +33,12 @@ BEST_MODEL_VERSION = os.environ["BEST_MODEL_VERSION"]
 mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
 # Get the root directory of your FastAPI application
 root_dir = str(pathlib.Path(__file__).parent.parent)
-print(root_dir)
+print(f'ROOT DIR: {root_dir}')
 
 # Create the 'mlflow' directory
 mlflow_dir = os.path.join(root_dir, 'mlflow')
-os.makedirs(mlflow_dir, exist_ok=True)
+os.makedirs(mlflow_dir, exist_ok=False)
+print(f'mlflow_dir: {mlflow_dir}')
 
 dst_path = mlflow_dir
 best_model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path=dst_path)

@@ -8,3 +8,5 @@ __pycache__
 build/
 # Idem dossier build de poetry
 dist/
+
+/api/app_functions.py
