@@ -35,8 +35,10 @@ mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
 root_dir = str(pathlib.Path(__file__).parent.parent)
 print(f'ROOT DIR: {root_dir}')
 
+
 # Create the 'mlflow' directory
 mlflow_dir = os.path.join(root_dir, 'mlflow')
+shutil.rmtree(mlflow_dir)
 os.makedirs(mlflow_dir, exist_ok=False)
 print(f'mlflow_dir: {mlflow_dir}')
 
