@@ -46,13 +46,49 @@ mlflow.set_tracking_uri(uri=MLFLOW_TRACKING_URI)
 # print(f'mlflow_dir: {mlflow_dir}')
 
 # dst_path = mlflow_dir
-best_model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path='api/')#, dst_path=dst_path)
-with open(f"api/{ARTIFACT_PATH}/shap_explainer_{BEST_MODEL_NAME}_version_{BEST_MODEL_VERSION}.pkl", 'rb') as f:
-    shap_explainer = pickle.load(f)
-threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
+class ModelElements():
+    def __init__(self):
+        self._best_model = None
+        self._shap_explainer = None
+        self._threshold = None
+        self._features_names = None
 
-if isinstance(best_model, LGBMClassifier):
-    feature_names = best_model.feature_name_
+    @property
+    def best_model(self):
+        if self._best_model is None:
+            self._best_model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path='api/')
+        return self._best_model
+    
+    @property
+    def threshold(self):
+        if self._threshold is None:
+            self._threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
+        return self._threshold
+
+    @property
+    def shap_explainer(self):
+        if self._shap_explainer is None:
+            self.best_model
+            with open(f"api/{ARTIFACT_PATH}/shap_explainer_{BEST_MODEL_NAME}_version_{BEST_MODEL_VERSION}.pkl", 'rb') as f:
+                self._shap_explainer = pickle.load(f)
+        return self._shap_explainer
+    
+    @property
+    def features_names(self):
+        if self._features_names is None:
+            self.best_model
+            self._features_names = self.best_model.feature_name_
+        return self._features_names
+
+model_elements = ModelElements()
+
+# best_model = mlflow.sklearn.load_model(model_uri=MLFLOW_MODEL_URI, dst_path='api/')#, dst_path=dst_path)
+# with open(f"api/{ARTIFACT_PATH}/shap_explainer_{BEST_MODEL_NAME}_version_{BEST_MODEL_VERSION}.pkl", 'rb') as f:
+#     shap_explainer = pickle.load(f)
+# threshold = float(mlflow.get_run(run_id=MLFLOW_RUN_ID).data.params['threshold'])
+
+# if isinstance(best_model, LGBMClassifier):
+#     feature_names = best_model.feature_name_
 
 # try:
 #     shutil.rmtree(mlflow_dir)
@@ -69,7 +105,7 @@ async def get_model_threshold()-> dict:
     """
     
     threshold_dict = {
-        'threshold': threshold
+        'threshold': model_elements.threshold
     }
     
     return threshold_dict
@@ -83,11 +119,11 @@ async def get_global_feature_importance()-> dict:
         dict: A dictionary containing the global feature importance information.
     """
 
-    if isinstance(best_model, LGBMClassifier):
+    if isinstance(model_elements.best_model, LGBMClassifier):
         feature_importance_dict = {
             'model_type': 'LGBMClassifier',
             'feature_importance': {
-                'gain': dict(zip(best_model.feature_name_, best_model.feature_importances_.tolist())),
+                'gain': dict(zip(model_elements.best_model.feature_name_, model_elements.best_model.feature_importances_.tolist())),
             }
         }
 
@@ -107,7 +143,7 @@ def predict_credit_risk(prediction_dict: dict)-> dict:
 
     client_infos = pd.DataFrame.from_dict([prediction_dict['client_infos']])
     threshold = prediction_dict['threshold']
-    proba_repay_wo_risk = float(best_model.predict_proba(client_infos)[:,0][0])
+    proba_repay_wo_risk = float(model_elements.best_model.predict_proba(client_infos)[:,0][0])
 
     if proba_repay_wo_risk > 1 - threshold:
         risk_category = "SAFE"
@@ -141,19 +177,18 @@ async def initiate_shap_explainer(data_for_shap_initiation: dict)-> dict:
         shap_values_dict: A dictionary containing the SHAP values, feature names, and expected value.
     """
 
-    # global explainer
     global shap_values_global
 
     data = pd.DataFrame.from_dict(data_for_shap_initiation, orient='index')
-    shap_values_global = shap_explainer.shap_values(data)
+    shap_values_global = model_elements.shap_explainer.shap_values(data)
 
 
-    if isinstance(best_model, LGBMClassifier):
+    if isinstance(model_elements.best_model, LGBMClassifier):
         shap_values_global = shap_values_global.tolist()
     
     shap_values_dict = {
         'shap_values': shap_values_global,
-        'feature_names': feature_names,
+        'feature_names': model_elements.feature_names,
         'expected_value': None
     }
     return shap_values_dict
@@ -179,12 +214,12 @@ def get_shap_feature_importance(shap_feature_importance_dict: dict)-> dict:
 
     elif feature_scale == 'Local':
         client_infos = pd.DataFrame.from_dict(shap_feature_importance_dict['client_infos'], orient='index').T
-        shap_values = shap_explainer.shap_values(client_infos).tolist()
-        expected_value = shap_explainer.expected_value.item()
+        shap_values = model_elements.shap_explainer.shap_values(client_infos).tolist()
+        expected_value = model_elements.shap_explainer.expected_value.item()
 
     shap_values_dict = {
         'shap_values': shap_values,
-        'feature_names': feature_names,
+        'feature_names': model_elements.feature_names,
         'expected_value': expected_value
     }
 
