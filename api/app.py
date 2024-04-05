@@ -165,7 +165,7 @@ async def initiate_shap_explainer(data_for_shap_initiation: dict)-> dict:
     global shap_values_global
 
     data = pd.DataFrame.from_dict(data_for_shap_initiation, orient='index')
-    shap_values_global = model_elements.shap_explainer.shap_values(data)
+    shap_values_global = model_elements.shap_explainer.shap_values(data, check_additivity=False)
 
 
     if isinstance(model_elements.best_model, LGBMClassifier):
