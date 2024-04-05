@@ -37,7 +37,7 @@ class ModelElements():
         self._best_model = None
         self._shap_explainer = None
         self._threshold = None
-        self._features_names = None
+        self._feature_names = None
 
     @property
     def best_model(self):
