@@ -85,6 +85,9 @@ async def get_model_threshold()-> dict:
     threshold_dict = {
         'threshold': model_elements.threshold
     }
+
+    # load the shap_explainer to avoid timeout when initiating shap_explainer
+    model_elements.shap_explainer
     
     return threshold_dict
 
