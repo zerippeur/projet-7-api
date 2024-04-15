@@ -59,7 +59,7 @@ class ModelElements():
             self.best_model
             with open(
                 f"api/{ARTIFACT_PATH}/shap_explainer_{BEST_MODEL_NAME}"
-                f"_version_{BEST_MODEL_VERSION}.pkl", 'rb'
+                f"_v{BEST_MODEL_VERSION}.pkl", 'rb'
             ) as f:
                 self._shap_explainer = pickle.load(f)
         return self._shap_explainer
