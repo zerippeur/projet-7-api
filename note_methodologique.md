@@ -79,7 +79,7 @@ Liens utiles :
 
   Nous avons aussi calculé et enregistré les indicateurs suivants pour les différentes valeurs de seuil: précision, rappel, accuracy, fonction fbeta (beta = np.sqrt(5)) et tracé les courbes correspondantes sur le jeu test. Le graphique permet de repérer facilement le seuil optimal.
 
-  ![Graphique d'optimisation du seuil à l'aide de la courbe de coût](images/f_beta_plot_LGBMClassifier-tuning_v3.png)
+  ![Graphique d'optimisation du seuil à l'aide de la courbe de coût](images/f_beta_plot_LGBMClassifier-tuning_v7.png)
 
 ***
 
