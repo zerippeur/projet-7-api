@@ -16,7 +16,7 @@ Liens utiles :
   Cette api sera accompagnée d'un dashboard qui permettra de sélectionner le client en question, de requêter l'api et de donner une interprétation du résultat ainsi que visualiser le positionnement du client par rapport aux autres clients.
   Dans ce cadre, nous proposons une méthodologie classique d'entraînement de modèle, avec tracking via mlflow.
   Nous sommes partis d'un feature engineering existant, afin de nous concentrer sur la partie modélisation (voir lien utile n°3)
-
+  
 #### Description des données
   Les données sont décrites sur la page du projet kaggle dont est issu le projet (voir lien utile n°1, onglet <i>data</i>) et téléchargeables (voir lien utile n°2). La cible à prédire correspond au défaut de remboursement du crédit (1 : le client a eu des difficultés à rembourser son crédit).
 
